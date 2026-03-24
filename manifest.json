@@ -1,0 +1,40 @@
+{
+  "manifest_version": 3,
+  "name": "Service Desk AI Assistant",
+  "version": "13.0.0",
+  "description": "AI assistant for Service Desk — Intelligent multilingual text generation on any web page",
+  "permissions": ["storage", "activeTab", "scripting", "contextMenus"],
+  "host_permissions": ["https://api.groq.com/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "commands": {
+    "toggle-panel": {
+      "suggested_key": { "default": "Ctrl+Shift+Q", "mac": "Command+Shift+Q" },
+      "description": "Toggle Service Desk AI panel"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}

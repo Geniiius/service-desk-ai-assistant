@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 300px;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(180deg, #0d1224 0%, #0a0e1a 100%);
+    color: #fff;
+    padding: 28px 24px 20px;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  /* --- Robot Icon --- */
+  .logo-container {
+    position: relative;
+    width: 72px; height: 72px;
+    margin: 0 auto 16px;
+  }
+  .logo-bg {
+    width: 72px; height: 72px;
+    background: linear-gradient(135deg, #1e1b4b, #312e81);
+    border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.25), inset 0 1px 0 rgba(255,255,255,0.05);
+    position: relative;
+  }
+  .robot-face {
+    font-size: 38px;
+    filter: drop-shadow(0 0 8px rgba(137, 212, 255, 0.4));
+    line-height: 1;
+  }
+  .logo-glow {
+    position: absolute; top: -8px; left: -8px; right: -8px; bottom: -8px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+    border-radius: 28px;
+    z-index: -1;
+  }
+
+  /* --- Title --- */
+  h2 {
+    font-size: 22px; font-weight: 900;
+    letter-spacing: -0.5px; margin-bottom: 4px;
+    background: linear-gradient(135deg, #fff 0%, #c4b5fd 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .subtitle {
+    font-size: 10px; color: #6366f1; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+  }
+
+  /* --- Button --- */
+  .btn-primary {
+    width: 100%; padding: 15px 20px; border-radius: 16px; border: none;
+    background: linear-gradient(135deg, #a855f7 0%, #7c3aed 50%, #6366f1 100%);
+    color: #fff; font-weight: 800; font-size: 14px;
+    cursor: pointer; margin-top: 20px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+    position: relative; overflow: hidden;
+  }
+  .btn-primary::before {
+    content: '';
+    position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    transition: left 0.5s;
+  }
+  .btn-primary:hover::before { left: 100%; }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(139, 92, 246, 0.5);
+  }
+  .btn-primary:active { transform: translateY(0); box-shadow: 0 2px 10px rgba(139, 92, 246, 0.3); }
+  .btn-primary:disabled {
+    opacity: 0.7; cursor: not-allowed; transform: none !important;
+    box-shadow: none !important;
+  }
+
+  /* --- Shortcut Hint --- */
+  .shortcut-hint {
+    margin-top: 14px; font-size: 10px; color: #475569;
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+  }
+  .shortcut-hint kbd {
+    background: #1e293b; color: #94a3b8;
+    padding: 2px 6px; border-radius: 4px;
+    font-family: 'Segoe UI', monospace; font-size: 9px; font-weight: 600;
+    border: 1px solid #334155;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  }
+
+  /* --- Status --- */
+  #status {
+    font-size: 10px; margin-top: 12px; color: #94a3b8;
+    min-height: 14px; transition: all 0.3s;
+  }
+
+  /* --- Version --- */
+  .version {
+    font-size: 8px; color: #1e293b; margin-top: 14px;
+    font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+  }
+
+  /* --- Success View --- */
+  .view { transition: opacity 0.4s, transform 0.4s; }
+  .view.hidden { opacity: 0; transform: translateY(10px); position: absolute; pointer-events: none; }
+
+  #success-view {
+    opacity: 0; transform: translateY(10px);
+    transition: opacity 0.4s ease 0.15s, transform 0.4s ease 0.15s;
+  }
+  #success-view.visible { opacity: 1; transform: translateY(0); }
+
+  .success-card {
+    background: linear-gradient(135deg, #0d2818 0%, #0f1f1a 100%);
+    border: 1px solid #166534;
+    border-radius: 16px;
+    padding: 20px; margin-top: 16px;
+    box-shadow: 0 4px 24px rgba(34, 197, 94, 0.1);
+  }
+  .success-label {
+    font-size: 13px; font-weight: 900;
+    letter-spacing: 6px; text-transform: uppercase;
+    color: #4ade80;
+    margin-bottom: 12px;
+  }
+  .success-msg {
+    font-size: 12px; color: #94a3b8; line-height: 1.5;
+  }
+  .success-msg a {
+    color: #4ade80; text-decoration: underline;
+    font-weight: 700; cursor: pointer;
+  }
+  .success-msg a:hover { color: #86efac; }
+
+  .success-icon {
+    font-size: 32px; margin-bottom: 8px;
+    filter: drop-shadow(0 0 12px rgba(74, 222, 128, 0.4));
+  }
+
+  /* --- Wiki / Info View --- */
+  .wiki-toggle {
+    margin-top: 10px; font-size: 10px; color: #6366f1;
+    cursor: pointer; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; transition: color 0.2s;
+    background: none; border: none;
+  }
+  .wiki-toggle:hover { color: #a78bfa; }
+
+  #wiki-view {
+    display: none; text-align: left; margin-top: 14px;
+    max-height: 260px; overflow-y: auto;
+    padding-right: 4px;
+  }
+  #wiki-view.visible { display: block; }
+
+  #wiki-view::-webkit-scrollbar { width: 4px; }
+  #wiki-view::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+  .wiki-section {
+    background: linear-gradient(135deg, #111827 0%, #0f172a 100%);
+    border: 1px solid #1e293b;
+    border-radius: 12px; padding: 12px 14px;
+    margin-bottom: 10px;
+  }
+  .wiki-section h3 {
+    font-size: 11px; font-weight: 800; color: #a78bfa;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .wiki-section p, .wiki-section li {
+    font-size: 10px; color: #94a3b8; line-height: 1.6;
+  }
+  .wiki-section ul { padding-left: 14px; margin: 4px 0; }
+  .wiki-section ol { padding-left: 16px; margin: 4px 0; }
+  .wiki-section ol li { font-size: 10px; color: #94a3b8; line-height: 1.6; }
+  .wiki-section a {
+    color: #818cf8; text-decoration: underline; font-weight: 600;
+  }
+  .wiki-section a:hover { color: #c4b5fd; }
+
+  .wiki-tag {
+    display: inline-block; font-size: 9px; font-weight: 700;
+    padding: 2px 8px; border-radius: 6px; margin-right: 4px;
+    margin-bottom: 4px;
+  }
+  .wiki-tag.pro { background: #064e3b; color: #4ade80; }
+  .wiki-tag.con { background: #451a03; color: #fb923c; }
+  .wiki-tag.method { background: #1e1b4b; color: #a78bfa; }
+
+  .wiki-vs {
+    display: flex; align-items: center; justify-content: center;
+    margin: 8px 0; gap: 8px;
+  }
+  .wiki-vs-line { flex: 1; height: 1px; background: #334155; }
+  .wiki-vs-text {
+    font-size: 10px; font-weight: 900; color: #6366f1;
+    letter-spacing: 2px;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Main View -->
+  <div id="main-view" class="view">
+    <div class="logo-container">
+      <div class="logo-glow"></div>
+      <div class="logo-bg">
+        <svg class="robot-face" viewBox="0 0 200 200" width="44" height="44" style="margin-top:2px;">
+          <!-- Glow filters -->
+          <defs>
+            <filter id="neon-glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="4" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+          </defs>
+          <!-- Main Chassis -->
+          <path d="M40,85 C40,40 70,30 100,30 C130,30 160,40 160,85 C160,120 135,135 100,135 C65,135 40,120 40,85 Z" fill="#ffffff" filter="drop-shadow(0 0 4px #a855f7)"/>
+          <!-- Top beacon -->
+          <circle cx="100" cy="35" r="10" fill="#a855f7" filter="url(#neon-glow)"/>
+          <!-- Visor -->
+          <rect x="55" y="70" width="90" height="44" rx="18" fill="#0d1224" stroke="#a855f7" stroke-width="2"/>
+          <!-- Glowing Eyes -->
+          <circle cx="82" cy="92" r="8" fill="#89d4ff" filter="url(#neon-glow)"/>
+          <circle cx="118" cy="92" r="8" fill="#89d4ff" filter="url(#neon-glow)"/>
+          <!-- Ear antennas -->
+          <path d="M40,85 L20,70 M160,85 L180,70" stroke="#a855f7" stroke-width="6" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+    <h2>Service Desk AI</h2>
+    <div class="subtitle">AI Assistant for Service Desk</div>
+    <button class="btn-primary" id="activate">⚡ PUSH TO ACTIVATE</button>
+    <div class="shortcut-hint">
+      or press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Q</kbd> to toggle
+    </div>
+    <div id="status"></div>
+    <button class="wiki-toggle" id="wiki-toggle-btn">📖 Wiki — How it works</button>
+    <div id="wiki-view">
+      <div class="wiki-section">
+        <h3>🔗 Connexion IA via API</h3>
+        <p>L'extension se connecte à l'API <a href="https://console.groq.com" target="_blank">Groq</a> (gratuite) via votre clé personnelle.</p>
+        <ul>
+          <li>Créez un compte sur <a href="https://console.groq.com" target="_blank">console.groq.com</a></li>
+          <li>Générez une clé API (<code style="color:#a78bfa;font-size:9px;">gsk_...</code>)</li>
+          <li>Collez-la dans les paramètres de l'extension</li>
+          <li>Vos requêtes transitent directement vers Groq — aucun serveur intermédiaire</li>
+        </ul>
+      </div>
+
+      <!-- ===== MÉTHODE 1 : SCRAPING PAR MOT-CLÉ ===== -->
+      <div class="wiki-section">
+        <h3>🔎 Méthode 1 — Scraping par mot-clé</h3>
+        <p><span class="wiki-tag method">RECHERCHE</span> Extraction de contenu web par mots-clés</p>
+        <p style="margin-top:6px;"><strong style="color:#c4b5fd;">Comment ça marche :</strong></p>
+        <ol>
+          <li>L'utilisateur sélectionne du texte ou clique « Lire la page »</li>
+          <li>L'extension extrait le contenu visible de la page (sélection → champ actif → formulaires → contenu principal)</li>
+          <li>Le texte brut est envoyé directement à l'IA avec le prompt de l'agent</li>
+          <li>L'IA traite le texte et retourne le résultat</li>
+        </ol>
+        <p style="margin-top:8px;margin-bottom:4px;"><span class="wiki-tag pro">✓ PRO</span></p>
+        <ul>
+          <li>Simple et rapide — pas de configuration complexe</li>
+          <li>Fonctionne sur n'importe quelle page web</li>
+          <li>Pas besoin de base de données vectorielle</li>
+          <li>Résultats immédiats, faible latence</li>
+          <li>Léger — pas de dépendances externes</li>
+        </ul>
+        <p style="margin-top:6px;margin-bottom:4px;"><span class="wiki-tag con">⚠ CON</span></p>
+        <ul>
+          <li>Limité au contenu visible de la page courante</li>
+          <li>Pas de mémoire entre les pages</li>
+          <li>Qualité dépend de la structure HTML de la page</li>
+          <li>Limite de tokens si la page est très longue (troncature à 50K car.)</li>
+          <li>Pas de recherche sémantique — correspondance littérale</li>
+        </ul>
+      </div>
+
+      <div class="wiki-vs">
+        <div class="wiki-vs-line"></div>
+        <span class="wiki-vs-text">VS</span>
+        <div class="wiki-vs-line"></div>
+      </div>
+
+      <!-- ===== MÉTHODE 2 : AGENT RAG ===== -->
+      <div class="wiki-section">
+        <h3>🧠 Méthode 2 — Agent RAG</h3>
+        <p><span class="wiki-tag method">RAG</span> Retrieval-Augmented Generation</p>
+        <p style="margin-top:6px;"><strong style="color:#c4b5fd;">Comment ça marche :</strong></p>
+        <ol>
+          <li>Les documents (wiki, KB, procédures) sont découpés en chunks et indexés dans une base vectorielle (embeddings)</li>
+          <li>Quand l'utilisateur pose une question, une recherche sémantique trouve les chunks les plus pertinents</li>
+          <li>Les chunks pertinents sont injectés dans le prompt comme contexte</li>
+          <li>L'IA génère une réponse basée sur ces documents sources</li>
+        </ol>
+        <p style="margin-top:8px;margin-bottom:4px;"><span class="wiki-tag pro">✓ PRO</span></p>
+        <ul>
+          <li>Recherche sémantique — comprend le sens, pas juste les mots</li>
+          <li>Accès à toute une base de connaissances (wiki, docs, procédures)</li>
+          <li>Réponses sourcées et traçables</li>
+          <li>Mise à jour continue de la knowledge base</li>
+          <li>Idéal pour Service Desk avec documentation volumineuse</li>
+          <li>Réduit les hallucinations — l'IA s'appuie sur des faits réels</li>
+        </ul>
+        <p style="margin-top:6px;margin-bottom:4px;"><span class="wiki-tag con">⚠ CON</span></p>
+        <ul>
+          <li>Nécessite une infrastructure (serveur, base vectorielle, pipeline d'indexation)</li>
+          <li>Configuration initiale plus complexe</li>
+          <li>Coût potentiel (hébergement, API embeddings)</li>
+          <li>Latence plus élevée (recherche + génération)</li>
+          <li>Maintenance de la base de connaissances nécessaire</li>
+          <li>Qualité dépend de la qualité des documents indexés</li>
+        </ul>
+      </div>
+
+      <!-- ===== COMPARATIF RAPIDE ===== -->
+      <div class="wiki-section">
+        <h3>📊 Comparatif rapide</h3>
+        <table style="width:100%;font-size:9px;color:#94a3b8;border-collapse:collapse;margin-top:4px;">
+          <tr style="border-bottom:1px solid #1e293b;">
+            <td style="padding:4px 6px;font-weight:700;color:#c4b5fd;">Critère</td>
+            <td style="padding:4px 6px;text-align:center;font-weight:700;color:#818cf8;">🔎 Scraping</td>
+            <td style="padding:4px 6px;text-align:center;font-weight:700;color:#818cf8;">🧠 RAG</td>
+          </tr>
+          <tr style="border-bottom:1px solid #111827;">
+            <td style="padding:3px 6px;">Mise en place</td>
+            <td style="padding:3px 6px;text-align:center;">⚡ Immédiate</td>
+            <td style="padding:3px 6px;text-align:center;">🔧 Complexe</td>
+          </tr>
+          <tr style="border-bottom:1px solid #111827;">
+            <td style="padding:3px 6px;">Coût</td>
+            <td style="padding:3px 6px;text-align:center;">Gratuit</td>
+            <td style="padding:3px 6px;text-align:center;">Variable</td>
+          </tr>
+          <tr style="border-bottom:1px solid #111827;">
+            <td style="padding:3px 6px;">Source de données</td>
+            <td style="padding:3px 6px;text-align:center;">Page courante</td>
+            <td style="padding:3px 6px;text-align:center;">Base complète</td>
+          </tr>
+          <tr style="border-bottom:1px solid #111827;">
+            <td style="padding:3px 6px;">Type de recherche</td>
+            <td style="padding:3px 6px;text-align:center;">Mots-clés</td>
+            <td style="padding:3px 6px;text-align:center;">Sémantique</td>
+          </tr>
+          <tr style="border-bottom:1px solid #111827;">
+            <td style="padding:3px 6px;">Précision</td>
+            <td style="padding:3px 6px;text-align:center;">★★★☆</td>
+            <td style="padding:3px 6px;text-align:center;">★★★★</td>
+          </tr>
+          <tr>
+            <td style="padding:3px 6px;">Idéal pour</td>
+            <td style="padding:3px 6px;text-align:center;">Usage rapide</td>
+            <td style="padding:3px 6px;text-align:center;">KB complète</td>
+          </tr>
+        </table>
+        <p style="margin-top:8px;font-style:italic;color:#64748b;">💡 Cette extension utilise actuellement la <strong style="color:#a78bfa;">Méthode 1 (Scraping)</strong>. Pour une solution RAG complète, un backend dédié est nécessaire.</p>
+      </div>
+    </div>
+    <div class="version">Service Desk AI Assistant v13.0.0</div>
+  </div>
+
+  <!-- Success View -->
+  <div id="success-view" class="hidden">
+    <div class="logo-container" style="margin-bottom:12px">
+      <div class="logo-glow"></div>
+      <div class="logo-bg" style="background: linear-gradient(135deg, #064e3b, #065f46);">
+        <div class="success-icon">✅</div>
+      </div>
+    </div>
+    <h2 style="background:linear-gradient(135deg,#fff,#86efac);-webkit-background-clip:text;background-clip:text;">Service Desk AI</h2>
+    <div class="success-card" style="border-color:#b91c1c; background:linear-gradient(135deg, #450a0a, #7f1d1d); box-shadow:0 4px 24px rgba(239,68,68,0.2);">
+      <div class="success-label" style="color:#fca5a5; letter-spacing:2px;">⚠️ RAFRAIÎCHISSEMENT REQUIS</div>
+      <div class="success-msg" style="color:#fee2e2; font-size:13px; line-height:1.6;">
+        Activation envoyée. Vous <b>devez</b> <a id="refresh-link" style="color:#f87171;">rafraîchir la page</a> <strong>(F5)</strong> pour charger l'assistant IA.
+      </div>
+    </div>
+    <div class="version" style="margin-top:16px;">Service Desk AI Assistant v13.0.0</div>
+  </div>
+
+  <script>
+    // Wiki toggle
+    document.getElementById('wiki-toggle-btn').onclick = () => {
+      const wiki = document.getElementById('wiki-view');
+      wiki.classList.toggle('visible');
+    };
+
+    function showSuccess() {
+      document.getElementById('main-view').classList.add('hidden');
+      const successView = document.getElementById('success-view');
+      successView.classList.remove('hidden');
+      requestAnimationFrame(() => successView.classList.add('visible'));
+    }
+
+    function showError(message) {
+      const status = document.getElementById('status');
+      const btn = document.getElementById('activate');
+      status.textContent = '⚠ ' + message;
+      status.style.color = '#f87171';
+      btn.disabled = false;
+      btn.textContent = '⚡ PUSH TO ACTIVATE';
+    }
+
+    document.getElementById('activate').onclick = async () => {
+      const status = document.getElementById('status');
+      const btn = document.getElementById('activate');
+      btn.disabled = true;
+      btn.textContent = '⏳ Injecting...';
+      status.textContent = '';
+      status.style.color = '#94a3b8';
+
+      try {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (!tab?.id) { showError('No active tab'); return; }
+
+        const url = tab.url || '';
+        if (url.startsWith('chrome://') || url.startsWith('chrome-extension://') ||
+            url.startsWith('edge://') || url.startsWith('about:')) {
+          showError('Cannot activate on system pages');
+          return;
+        }
+
+        await chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          files: ['content.js']
+        });
+
+        showSuccess();
+      } catch (err) {
+        showError(err.message || 'Cannot activate on this page');
+      }
+    };
+
+    document.getElementById('refresh-link').onclick = async () => {
+      try {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (tab?.id) await chrome.tabs.reload(tab.id);
+        window.close();
+      } catch (_) { window.close(); }
+    };
+  </script>
+</body>
+</html>
