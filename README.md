@@ -13,7 +13,7 @@
 <br>
 
 <div align="center">
-  <img src="docs/assets/features.svg" alt="Features" width="750">
+  <img src="docs/assets/features.png" alt="Features" width="750">
 </div>
 
 ---
