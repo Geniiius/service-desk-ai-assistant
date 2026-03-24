@@ -1,19 +1,21 @@
 <div align="center">
-  <img src="docs/banner.svg" alt="Service Desk AI Assistant" width="800">
+  <img src="docs/banner.svg" alt="Service Desk AI Assistant" width="100%">
 
-  **Your AI Copilot that follows you on every web page. No tabs. No copy-pasting. Just pure productivity.**
+  <h3><b>Your AI Copilot that follows you on every web page. No tabs. No copy-pasting. Just pure productivity.</b></h3>
 
-  <a href="#-quick-install"><img src="https://img.shields.io/badge/Chrome-Install_Now-a855f7?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Install"></a>
-  <img src="https://img.shields.io/badge/version-13.0.0-6366f1?style=for-the-badge" alt="Version">
-  <img src="https://img.shields.io/badge/license-MIT-10b981?style=for-the-badge" alt="License">
-  <img src="https://img.shields.io/badge/BYOK-Groq_API-89d4ff?style=for-the-badge" alt="Groq">
-  <img src="https://img.shields.io/badge/Dependencies-0-success?style=for-the-badge" alt="Zero Dependencies">
+  <p align="center">
+    <a href="#-quick-install"><img src="https://img.shields.io/badge/Chrome-INSTALL_NOW-a855f7?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Install"></a><!--
+    --><img src="https://img.shields.io/badge/VERSION-13.0.0-6366f1?style=for-the-badge" alt="Version"><!--
+    --><img src="https://img.shields.io/badge/LICENSE-MIT-10b981?style=for-the-badge" alt="License"><!--
+    --><img src="https://img.shields.io/badge/BYOK-GROQ_API-89d4ff?style=for-the-badge" alt="Groq"><!--
+    --><img src="https://img.shields.io/badge/DEPENDENCIES-0-success?style=for-the-badge" alt="Zero Dependencies">
+  </p>
 </div>
 
 <br>
 
 <div align="center">
-  <img src="docs/assets/features.png" alt="Features" width="750">
+  <img src="docs/assets/features.png" alt="Features" width="100%">
 </div>
 
 ---
