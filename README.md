@@ -80,7 +80,13 @@ Service Desk AI Assistant uses **Groq** by default. It is an excellent, free alt
 ## 🏗 Architecture Under the Hood
 
 <div align="center">
-  <img src="docs/assets/Architecture2.png" alt="Architecture" width="100%">
+  <img src="docs/assets/architecture.svg" alt="System Architecture" width="100%">
+</div>
+
+<br>
+
+<div align="center">
+  <img src="docs/assets/Architecture2.png" alt="Secure Flow Architecture" width="100%">
 </div>
 
 * **Content Script (`content.js`):** Manages the entire UI injection, the Draggable logic, rendering the Star Dust effects, i18n, and History. It **never** makes network requests itself.
