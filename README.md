@@ -45,6 +45,15 @@ You write the same things every day — client notes, email corrections, reformu
 - **Bring Your Own Key (BYOK):** Uses your personal Groq API key (`gsk_...`). 
 - **Isolated Execution:** Your API key is safely stored in `chrome.storage.local` and proxied exclusively via the **Service Worker** (`background.js`). It **never** touches the page's DOM or JavaScript context.
 
+### 📚 Dual Wiki Integration System
+Service Desk AI Assistant seamlessly connects to your enterprise knowledge base to provide perfectly contextualized answers:
+- **Method 1: Web Scraping** - The assistant dynamically reads and extracts data directly from the active wiki or documentation pages you visit.
+- **Method 2: Enterprise RAG** - Connects securely to a Retrieval-Augmented Generation (RAG) backend and vector database for deep, institutional knowledge retrieval.
+
+<div align="center">
+  <img src="docs/assets/wiki-integration.png" alt="Wiki Integration Methods: Scraping vs RAG" width="100%">
+</div>
+
 ### 🌍 Native i18n & Context Menu
 - **3 Built-in Languages:** Full UI & Prompt support in French 🇫🇷, English 🇬🇧, and Spanish 🇪🇸.
 - **Right-Click Magic:** Select any text, right-click, and run an AI agent instantly via the Context Menu.
@@ -136,5 +145,5 @@ Released under the [MIT License](LICENSE). Free to use, modify, and distribute.
 
 <br>
 <p align="center">
-  <sub>Built with 🧠 and ❤️ by <a href="https://github.com/Geniiius">Geniiius</a></sub>
+  <sub>Build by <a href="https://github.com/Geniiius">InnSaeI ( Geniius )</a></sub>
 </p>
