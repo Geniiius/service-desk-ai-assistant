@@ -32,6 +32,7 @@ chrome.runtime.onInstalled.addListener((details) => {
       sdw_quantum_v13: {
         apiKey: '', model: 'llama-3.3-70b-versatile', theme: 'midnight', lang: 'fr',
         globalInstruction: '', buttons: null, onboarded: false,
+        useScraping: false, useRag: false, ragUrl: '',
         history: [], tokenUsage: { total: 0, month: new Date().getMonth() }
       }
     });
@@ -108,9 +109,9 @@ function handleInject(sendResponse) {
 // ═══════════════════════════════════════════
 async function handleGroqRequest(msg, sendResponse) {
   try {
-    const { apiKey, model, messages, systemPrompt, userContent, globalInstruction } = msg;
+    const { apiKey, model, messages, systemPrompt, userContent, globalInstruction, useRag, ragUrl } = msg;
 
-    if (!apiKey || typeof apiKey !== 'string' || !apiKey.startsWith('gsk_')) {
+    if (!useRag && (!apiKey || typeof apiKey !== 'string' || !apiKey.startsWith('gsk_'))) {
       sendResponse({ ok: false, error: 'Invalid API key. Expected format: gsk_...' }); return;
     }
 
@@ -136,10 +137,13 @@ async function handleGroqRequest(msg, sendResponse) {
       sendResponse({ ok: false, error: 'No content provided.' }); return;
     }
 
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const endpoint = useRag && ragUrl ? ragUrl : 'https://api.groq.com/openai/v1/chat/completions';
+    const authHeader = useRag && ragUrl ? `Bearer ${(apiKey || '').trim()}` : `Bearer ${apiKey.trim()}`;
+    
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${apiKey.trim()}`,
+        'Authorization': authHeader,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({

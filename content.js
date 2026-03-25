@@ -722,6 +722,34 @@
   function renderWiki(){
     const w=document.getElementById('sdw-tc-wiki'); if(!w) return;
     w.innerHTML=`
+      <style>
+        .sdw-switch { position: relative; display: inline-block; width: 32px; height: 18px; }
+        .sdw-switch input { opacity: 0; width: 0; height: 0; }
+        .sdw-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #334155; transition: .4s; border-radius: 18px; }
+        .sdw-slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 2px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .sdw-slider { background-color: #10b981; }
+        input:checked + .sdw-slider:before { transform: translateX(14px); }
+      </style>
+      <div class="sdw-wiki-card" style="border-color:#10b981;background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(139,92,246,.05));margin-bottom:12px;">
+        <h4 style="color:#34d399;">⚙️ Wiki Configuration</h4>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
+          <span style="font-size:11px;font-weight:700;">🔎 Web Scraping (Local Context)</span>
+          <label class="sdw-switch"><input type="checkbox" id="sdw-toggle-scraping" ${state.useScraping?'checked':''}><span class="sdw-slider"></span></label>
+        </div>
+        <p style="font-size:9px;color:var(--text-dim);margin-top:4px;">When enabled, reads the active page text automatically to provide exact context.</p>
+        
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;">
+          <span style="font-size:11px;font-weight:700;">🧠 Enterprise RAG Backend</span>
+          <label class="sdw-switch"><input type="checkbox" id="sdw-toggle-rag" ${state.useRag?'checked':''}><span class="sdw-slider"></span></label>
+        </div>
+        <p style="font-size:9px;color:var(--text-dim);margin-top:4px;margin-bottom:8px;">When enabled, securely routes requests to your custom Vector DB backend.</p>
+        
+        <div id="sdw-rag-config" style="display:${state.useRag?'block':'none'};margin-top:8px;">
+          <input type="text" id="sdw-rag-url" class="sdw-cfg-input" style="width:100%;margin-bottom:6px;" placeholder="https://api.your-company.com/v1/chat" value="${state.ragUrl||''}">
+          <button id="sdw-save-wiki" class="sdw-cfg-btn" style="width:100%;background:#10b981;">SAVE WIKI CONFIG</button>
+        </div>
+      </div>
+      
       <div class="sdw-wiki-card" style="border-color:#6366f1;background:linear-gradient(135deg,rgba(99,102,241,.08),rgba(139,92,246,.05));">
         <h4 style="color:#818cf8;">📖 ${t('wikiGuideTitle')}</h4>
         <p style="margin-bottom:6px;">${t('wikiGuideDesc')}</p>
@@ -824,6 +852,27 @@
         <p style="font-size:9px;margin-top:4px;">${t('wikiStatusMethods')}</p>
         <p style="font-size:8px;margin-top:6px;color:var(--text-dim);">${t('wikiStatusHelp')}</p>
       </div>`;
+      
+    // Bind Wiki Events
+    setTimeout(() => {
+      const tScrap = document.getElementById('sdw-toggle-scraping');
+      const tRag = document.getElementById('sdw-toggle-rag');
+      const boxRag = document.getElementById('sdw-rag-config');
+      const btnSave = document.getElementById('sdw-save-wiki');
+      
+      if(tScrap) tScrap.onchange = async () => { state.useScraping = tScrap.checked; await saveState(); };
+      if(tRag) tRag.onchange = async () => { 
+        state.useRag = tRag.checked; 
+        boxRag.style.display = tRag.checked ? 'block' : 'none';
+        await saveState();
+      };
+      if(btnSave) btnSave.onclick = async () => {
+        state.ragUrl = document.getElementById('sdw-rag-url').value.trim();
+        await saveState();
+        btnSave.innerText = 'SAVED ✓';
+        setTimeout(()=>btnSave.innerText = 'SAVE WIKI CONFIG', 2000);
+      };
+    }, 50);
   }
 
   // --- GENERATE (with token tracking + history) ---
@@ -842,13 +891,20 @@
 
     // Reset conversation for new generation
     currentPrompt=btn.prompt;
+    let finalPrompt = btn.prompt;
+    if (state.useScraping) {
+      const pageText = readPageContent();
+      if (pageText) finalPrompt += "\n\n[Context from active page]:\n" + pageText;
+    }
+    
     currentConversation=[{ role:'user', content:src }];
 
     try {
       const resp=await new Promise((resolve,reject)=>{
         chrome.runtime.sendMessage({
           action:'groq_request', apiKey:state.apiKey, model:state.model,
-          systemPrompt:btn.prompt, globalInstruction:state.globalInstruction,
+          systemPrompt:finalPrompt, globalInstruction:state.globalInstruction,
+          useRag:state.useRag, ragUrl:state.ragUrl,
           messages:[{role:'user',content:src}]
         }, r=>{ if(chrome.runtime.lastError) reject(new Error(chrome.runtime.lastError.message)); else resolve(r); });
       });
@@ -883,11 +939,18 @@
     currentConversation.push({role:'user',content:input});
     document.getElementById('sdw-refine').value='';
 
+    let finalPrompt = currentPrompt;
+    if (state.useScraping) {
+      const pageText = readPageContent();
+      if (pageText) finalPrompt += "\n\n[Context from active page]:\n" + pageText;
+    }
+
     try{
       const resp=await new Promise((resolve,reject)=>{
         chrome.runtime.sendMessage({
           action:'groq_request', apiKey:state.apiKey, model:state.model,
-          systemPrompt:currentPrompt, globalInstruction:state.globalInstruction,
+          systemPrompt:finalPrompt, globalInstruction:state.globalInstruction,
+          useRag:state.useRag, ragUrl:state.ragUrl,
           messages:currentConversation
         }, r=>{ if(chrome.runtime.lastError) reject(new Error(chrome.runtime.lastError.message)); else resolve(r); });
       });
