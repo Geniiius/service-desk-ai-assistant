@@ -32,7 +32,7 @@ chrome.runtime.onInstalled.addListener((details) => {
       sdw_quantum_v13: {
         apiKey: '', model: 'llama-3.3-70b-versatile', theme: 'midnight', lang: 'fr',
         globalInstruction: '', buttons: null, onboarded: false,
-        useScraping: false, useRag: false, ragUrl: '',
+        useScraping: false, useRag: false, ragUrl: '', scrapUrl: '',
         history: [], tokenUsage: { total: 0, month: new Date().getMonth() }
       }
     });
@@ -81,6 +81,9 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       return true;
     case 'test_api':
       handleTestApi(msg, sendResponse);
+      return true;
+    case 'scrape_url':
+      handleScrapeUrl(msg, sendResponse);
       return true;
     default:
       return false;
@@ -177,6 +180,30 @@ async function handleGroqRequest(msg, sendResponse) {
 
   } catch (err) {
     sendResponse({ ok: false, error: `Network error: ${err.message}` });
+  }
+}
+
+// ═══════════════════════════════════════════
+// --- SCRAPE URL ---
+// ═══════════════════════════════════════════
+async function handleScrapeUrl(msg, sendResponse) {
+  try {
+    if (!msg.url || !msg.url.startsWith('http')) {
+      sendResponse({ ok: false, error: 'Invalid URL' }); return;
+    }
+    const response = await fetch(msg.url);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const html = await response.text();
+    // Basic DOM sanitation to extract raw text safely in background
+    const text = html.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+                     .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+                     .replace(/<[^>]+>/g, ' ')
+                     .replace(/\s+/g, ' ')
+                     .trim()
+                     .substring(0, 15000);
+    sendResponse({ ok: true, text });
+  } catch (err) {
+    sendResponse({ ok: false, error: err.message });
   }
 }
 

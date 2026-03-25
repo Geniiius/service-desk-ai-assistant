@@ -733,11 +733,15 @@
       <div class="sdw-wiki-card" style="border-color:#10b981;background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(139,92,246,.05));margin-bottom:12px;">
         <h4 style="color:#34d399;">⚙️ Wiki Configuration</h4>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
-          <span style="font-size:11px;font-weight:700;">🔎 Web Scraping (Local Context)</span>
+          <span style="font-size:11px;font-weight:700;">🔎 Web Scraping (Active or Target URL)</span>
           <label class="sdw-switch"><input type="checkbox" id="sdw-toggle-scraping" ${state.useScraping?'checked':''}><span class="sdw-slider"></span></label>
         </div>
-        <p style="font-size:9px;color:var(--text-dim);margin-top:4px;">When enabled, reads the active page text automatically to provide exact context.</p>
+        <p style="font-size:9px;color:var(--text-dim);margin-top:4px;">Automatically secure reads active page, or define a specific URL to scrape background:</p>
         
+        <div id="sdw-scrap-config" style="display:${state.useScraping?'block':'none'};margin-top:8px;">
+          <input type="text" id="sdw-scrap-url" class="sdw-cfg-input" style="width:100%;" placeholder="Optional: https://wiki..." value="${state.scrapUrl||''}">
+        </div>
+
         <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;">
           <span style="font-size:11px;font-weight:700;">🧠 Enterprise RAG Backend</span>
           <label class="sdw-switch"><input type="checkbox" id="sdw-toggle-rag" ${state.useRag?'checked':''}><span class="sdw-slider"></span></label>
@@ -858,9 +862,14 @@
       const tScrap = document.getElementById('sdw-toggle-scraping');
       const tRag = document.getElementById('sdw-toggle-rag');
       const boxRag = document.getElementById('sdw-rag-config');
+      const boxScrap = document.getElementById('sdw-scrap-config');
       const btnSave = document.getElementById('sdw-save-wiki');
       
-      if(tScrap) tScrap.onchange = async () => { state.useScraping = tScrap.checked; await saveState(); };
+      if(tScrap) tScrap.onchange = async () => { 
+        state.useScraping = tScrap.checked; 
+        boxScrap.style.display = tScrap.checked ? 'block' : 'none';
+        await saveState(); 
+      };
       if(tRag) tRag.onchange = async () => { 
         state.useRag = tRag.checked; 
         boxRag.style.display = tRag.checked ? 'block' : 'none';
@@ -868,6 +877,7 @@
       };
       if(btnSave) btnSave.onclick = async () => {
         state.ragUrl = document.getElementById('sdw-rag-url').value.trim();
+        state.scrapUrl = document.getElementById('sdw-scrap-url').value.trim();
         await saveState();
         btnSave.innerText = 'SAVED ✓';
         setTimeout(()=>btnSave.innerText = 'SAVE WIKI CONFIG', 2000);
@@ -893,8 +903,16 @@
     currentPrompt=btn.prompt;
     let finalPrompt = btn.prompt;
     if (state.useScraping) {
-      const pageText = readPageContent();
-      if (pageText) finalPrompt += "\n\n[Context from active page]:\n" + pageText;
+      let pageText = '';
+      if (state.scrapUrl && state.scrapUrl.startsWith('http')) {
+        try {
+          const proxyResp = await new Promise(res => chrome.runtime.sendMessage({ action: 'scrape_url', url: state.scrapUrl }, res));
+          if (proxyResp && proxyResp.ok) pageText = proxyResp.text;
+        } catch(e) {}
+      } else {
+        pageText = readPageContent();
+      }
+      if (pageText) finalPrompt += "\n\n[Scraped Context]:\n" + pageText;
     }
     
     currentConversation=[{ role:'user', content:src }];
@@ -941,8 +959,16 @@
 
     let finalPrompt = currentPrompt;
     if (state.useScraping) {
-      const pageText = readPageContent();
-      if (pageText) finalPrompt += "\n\n[Context from active page]:\n" + pageText;
+      let pageText = '';
+      if (state.scrapUrl && state.scrapUrl.startsWith('http')) {
+        try {
+          const proxyResp = await new Promise(res => chrome.runtime.sendMessage({ action: 'scrape_url', url: state.scrapUrl }, res));
+          if (proxyResp && proxyResp.ok) pageText = proxyResp.text;
+        } catch(e) {}
+      } else {
+        pageText = readPageContent();
+      }
+      if (pageText) finalPrompt += "\n\n[Scraped Context]:\n" + pageText;
     }
 
     try{

@@ -56,8 +56,10 @@ Service Desk AI Assistant seamlessly connects to your enterprise knowledge base 
 
 ### 🛠️ How to Test & Configure the Wiki Integration
 
-**1. Web Scraping (Client-Side)**
-Once fully enabled, testing this method requires zero configuration. Simply navigate to your target internal wiki or documentation page, open the Service Desk AI Assistant, and use your agents. The extension's content script will securely read the current DOM to provide exact page context to the LLM.
+**1. Web Scraping (Local or Target URL)**
+Testing this method offers two secure options:
+- **Local Context:** Simply navigate to your target internal wiki page, and the extension will securely read the current DOM to provide exact page context.
+- **Target URL:** Alternatively, configure a specific link (e.g. `https://my-wiki.com/doc`) directly in the Wiki panel. The background service worker will perform a secure HTTP fetch avoiding CORS or active tab interference, parse the text, and use it as deep context.
 
 **2. Enterprise RAG (Server-Side)**
 To test the RAG method, you will need to connect the assistant to your existing vector database and orchestration backend (like LangChain or LlamaIndex).
