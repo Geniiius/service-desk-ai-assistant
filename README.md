@@ -54,6 +54,17 @@ Service Desk AI Assistant seamlessly connects to your enterprise knowledge base 
   <img src="docs/assets/wiki-integration.png" alt="Wiki Integration Methods: Scraping vs RAG" width="100%">
 </div>
 
+### 🛠️ How to Test & Configure the Wiki Integration
+
+**1. Web Scraping (Client-Side)**
+Once fully enabled, testing this method requires zero configuration. Simply navigate to your target internal wiki or documentation page, open the Service Desk AI Assistant, and use your agents. The extension's content script will securely read the current DOM to provide exact page context to the LLM.
+
+**2. Enterprise RAG (Server-Side)**
+To test the RAG method, you will need to connect the assistant to your existing vector database and orchestration backend (like LangChain or LlamaIndex).
+- Go to the **Settings** panel of the extension.
+- Replace the default API URL with your custom RAG endpoint.
+- The assistant will then forward user queries to your backend, which will securely retrieve institutional documents before generating the final response.
+
 ### 🌍 Native i18n & Context Menu
 - **3 Built-in Languages:** Full UI & Prompt support in French 🇫🇷, English 🇬🇧, and Spanish 🇪🇸.
 - **Right-Click Magic:** Select any text, right-click, and run an AI agent instantly via the Context Menu.
