@@ -129,7 +129,6 @@ Service Desk AI Assistant uses **Groq** by default. It is an excellent, free alt
 | **Agent Editor** | <img src="docs/screenshots/agent-editor.png" width="350"> |
 | **Settings** | <img src="docs/screenshots/settings.png" width="350"> |
 | **Extension Popup** | <img src="docs/screenshots/popup-start.png" width="350"> |
-| **Onboarding Wizard** | <img src="docs/screenshots/onboarding.png" width="350"> |
 
 > *Note: Place your own visual assets in `docs/screenshots/` to display them here.*
 </details>
